@@ -10,6 +10,10 @@ else()
   set(NOT_A_GIT_REPO "NotAGitRepo")
 endif()
 
+set(THIRD_PARTY_DIRECTORY
+    "${PROJECT_SOURCE_DIR}/external"
+    CACHE PATH "The path were all the 3rd party projects can be found")
+
 # initialize submodule with given path
 function(initialize_submodule path)
   if(NOT ${GIT_FOUND})
@@ -28,14 +32,14 @@ function(add_external_project name)
   find_path(
     ${name}_PATH
     NAMES CMakeLists.txt
-    PATHS "${PROJECT_SOURCE_DIR}/external/${name}")
+    PATHS "${THIRD_PARTY_DIRECTORY}/${name}")
   if(NOT EXISTS ${${name}_PATH})
     if(NOT_A_GIT_REPO)
       message(FATAL_ERROR "Looks like you are building from source. Git needed for ${name} feature.")
     endif()
-    initialize_submodule(external/${name})
+    initialize_submodule("${THIRD_PARTY_DIRECTORY}/${name}")
   else()
     message(STATUS "Sub-project : using ${name} from from external/${name}")
   endif()
-  add_subdirectory(external/${name})
+  add_subdirectory("${THIRD_PARTY_DIRECTORY}/${name}")
 endfunction()
