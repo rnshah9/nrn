@@ -9,8 +9,8 @@ import os
 @USING_CMAKE_FALSE@using_cmake=False
 @USING_PGI_COMPILER_TRUE@using_pgi=True
 @USING_PGI_COMPILER_FALSE@using_pgi=False
-@USING_PGI_20_COMPILER_TRUE@using_pgi_20=True
-@USING_PGI_20_COMPILER_FALSE@using_pgi_20=False
+@USING_PGI_GE_20_COMPILER_TRUE@using_pgi_ge_20=True
+@USING_PGI_GE_20_COMPILER_FALSE@using_pgi_ge20=False
 @BUILD_MINGW_TRUE@mingw = 1
 @BUILD_MINGW_FALSE@mingw = 0
 
@@ -148,7 +148,7 @@ extra_compile_args = []
 
 if using_pgi:
   extra_link_args.append(pgi_compiler_flags)
-  if not using_pgi_20:
+  if not using_pgi_ge_20:
     extra_rpath_flags.append(pgi_compiler_flags)
   extra_compile_args.append(pgi_compiler_flags)
 

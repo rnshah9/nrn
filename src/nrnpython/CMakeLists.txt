@@ -238,7 +238,7 @@ if(NRN_ENABLE_MODULE_INSTALL)
       TARGET hoc_module POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/inithoc.cpp
               ${CMAKE_CURRENT_BINARY_DIR}/inithoc.cpp
-      COMMAND ${pyexe} setup.py build --build-lib=${NRN_PYTHON_BUILD_LIB}
+      COMMAND ${pyexe} setup.py --quiet build --build-lib=${NRN_PYTHON_BUILD_LIB}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMENT "Building python module with: ${pyexe}")
   endforeach(pyexe)
@@ -258,7 +258,7 @@ if(NRN_ENABLE_MODULE_INSTALL)
 echo 'Installing python module using:'\n\
 set -ex\n\
 cd ${CMAKE_CURRENT_BINARY_DIR}\n\
-$1 setup.py build --build-lib=${NRN_PYTHON_BUILD_LIB} install ${NRN_MODULE_INSTALL_OPTIONS}\n\
+$1 setup.py --quiet build --build-lib=${NRN_PYTHON_BUILD_LIB} install ${NRN_MODULE_INSTALL_OPTIONS}\n\
 ")
   foreach(pyexe ${NRN_PYTHON_EXE_LIST})
     install(
