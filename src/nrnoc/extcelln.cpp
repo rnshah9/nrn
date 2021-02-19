@@ -475,17 +475,19 @@ void nrn_setup_ext(NrnThread* _nt)
 		if (pnd) {
 			pd = nde->param;
 			/* series resistance and capacitance to ground */
-			j = 0;
-			for (;; ) { /* between j and j+1 layer */
+			//j = 0;
+			for (j = 0; j < nlayer; j++) { /* between j and j+1 layer */
 				mfac =  (xg[j] + xc[j]*cfac);
 				*nde->_d[j] += mfac;
-				++j;
-				if (j == nlayer) {
-					break;
+				//++j;
+				//if (j == nlayer) {
+				//	break;
+				//}
+				if (j+1 <= nlayer) {
+				    *nde->_d[j+1] += mfac;
+				    *nde->_x12[j+1] -= mfac;
+				    *nde->_x21[j+1] -= mfac;
 				}
-				*nde->_d[j] += mfac;
-				*nde->_x12[j] -= mfac;
-				*nde->_x21[j] -= mfac;
 			}
 			pnde = pnd->extnode;
 			/* axial connections */

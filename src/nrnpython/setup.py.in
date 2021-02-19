@@ -1,3 +1,35 @@
+from distutils.sysconfig import get_config_vars as default_get_config_vars
+
+def remove_pthread(x):
+    def replace_str(substr):
+        if type(x) is str:
+            # x.replace(" -pthread ") would be probably enough...
+            # but we want to make sure we make it right for every input
+            if "-grecord-gcc-switches" in x or "-pipe" in x: # or "-pthread" in x:
+                x = ""
+            if x=="-pthread":
+                return ""
+            if x.startswith("-pthread "):
+                return remove_pthread(x[len("-pthread "):])
+            if x.endswith(" -pthread"):
+                return remove_pthread(x[:-len(" -pthread")])
+        return x.replace(" -pthread ", " ")
+    return x
+
+def my_get_config_vars(*args):
+  result = default_get_config_vars(*args)
+  # sometimes result is a list and sometimes a dict:
+  if type(result) is list:
+     return [remove_pthread(x) for x in result]
+  elif type(result) is dict:
+     return {k : remove_pthread(x) for k,x in result.items()}
+  else:
+     raise Exception("cannot handle type"+type(result))
+
+
+import distutils.sysconfig as dsc
+dsc.get_config_vars = my_get_config_vars
+print(dsc.get_config_vars())
 #setup.py
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_version
@@ -75,7 +107,7 @@ cxx_compiler_path = get_escaped_path("@CXX@")
 # setup.py tries to compile C++ code with the C compiler. This works with
 # gcc and intel but fails with at least PGI compiler. Hence, use C++ compiler
 # if PGI compiler is used.
-os.environ['CC'] = cxx_compiler_path if using_pgi else c_compiler_path
+os.environ['CC'] = cxx_compiler_path #if using_pgi else c_compiler_path
 os.environ["CXX"] = cxx_compiler_path
 
 if using_pgi:
