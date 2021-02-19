@@ -1,18 +1,17 @@
 from distutils.sysconfig import get_config_vars as default_get_config_vars
 
 def remove_pthread(x):
-    def replace_str(substr):
-        if type(x) is str:
-            # x.replace(" -pthread ") would be probably enough...
-            # but we want to make sure we make it right for every input
-            if "-grecord-gcc-switches" in x or "-pipe" in x: # or "-pthread" in x:
-                x = ""
-            if x=="-pthread":
-                return ""
-            if x.startswith("-pthread "):
-                return remove_pthread(x[len("-pthread "):])
-            if x.endswith(" -pthread"):
-                return remove_pthread(x[:-len(" -pthread")])
+    if type(x) is str:
+        # x.replace(" -pthread ") would be probably enough...
+        # but we want to make sure we make it right for every input
+        if "-grecord-gcc-switches" in x or "-pipe" in x: # or "-pthread" in x:
+            x = ""
+        if x=="-pthread":
+            return ""
+        if x.startswith("-pthread "):
+            return remove_pthread(x[len("-pthread "):])
+        if x.endswith(" -pthread"):
+            return remove_pthread(x[:-len(" -pthread")])
         return x.replace(" -pthread ", " ")
     return x
 
@@ -29,7 +28,7 @@ def my_get_config_vars(*args):
 
 import distutils.sysconfig as dsc
 dsc.get_config_vars = my_get_config_vars
-print(dsc.get_config_vars())
+#print(dsc.get_config_vars())
 #setup.py
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_version
