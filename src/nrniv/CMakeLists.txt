@@ -193,6 +193,13 @@ set_property(
   APPEND
   PROPERTY COMPILE_DEFINITIONS OOP=1 HOC=1 INTERVIEWS=1)
 
+if(IS_DIRECTORY "/opt/cray")
+  set_property(
+    SOURCE ${NRN_NRNOC_SRC_DIR}/hoc_oop.cpp ${NRN_NRNOC_SRC_DIR}/hoc_init.cpp ${NRN_NRNOC_SRC_DIR}/cabcode.cpp ${NRN_NRNOC_SRC_DIR}/nrnnoiv.cpp
+    APPEND
+    PROPERTY COMPILE_FLAGS -O0)
+endif()
+
 set_property(
   SOURCE ${NRN_NRNOC_SRC_DIR}/code.cpp ${NRN_NRNOC_SRC_DIR}/hoc_init.cpp ${NRN_NRNOC_SRC_DIR}/hoc_oop.cpp
   APPEND
