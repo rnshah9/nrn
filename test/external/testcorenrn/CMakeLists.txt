@@ -15,7 +15,7 @@ set(spike_comparison_tests
 # Set the number of MPI ranks to use for each test. Assume 1 if not explicitly specified.
 set(mpi_ranks_gf 2)
 set(mpi_ranks_watch 2)
-set(mpi_ranks_patstim 2)
+set(mpi_ranks_patstim 1)
 set(mpi_ranks_vecplay 2)
 set(mpi_ranks_vecevent 4)
 set(mpi_ranks_netstimdirect 2)
