@@ -43,7 +43,9 @@ extern void hoc_settext(void);
 #if defined(WIN32)
 extern void hoc_win_exec();
 #endif
-
+#if NRN_DIGEST
+extern void nrn_digest();
+#endif
 
 #endif  
 

@@ -31,6 +31,11 @@ class IvocVect;
 extern "C" {
 #endif
 
+#if NRN_DIGEST
+extern int nrn_digest_; // debugging differences on different machines.
+extern void nrn_digest_dbl_array(const char* msg, int tid, double t, double* array, size_t sz);
+#endif
+
     // nocpout.cpp
 extern void hoc_register_var(DoubScal*, DoubVec*, VoidFunc*);
 extern void ivoc_help(const char*);

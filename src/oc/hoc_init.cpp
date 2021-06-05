@@ -235,6 +235,9 @@ static struct { /* Builtin functions with multiple or variable args */
 #if defined(WIN32)
    "WinExec", hoc_win_exec,
 #endif
+#if NRN_DIGEST
+    "nrn_digest", nrn_digest,
+#endif
 	0,	0
 };
 
