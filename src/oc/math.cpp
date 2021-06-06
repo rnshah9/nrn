@@ -40,6 +40,18 @@ double Log10(double x) {
     return errcheck(log10(x), "log10");
 }
 
+static double accuracy32(double val) {
+    int ex;
+    double mant = frexp(val, &ex);
+    // round to about 32 bits after .
+    double prec = 4294967296.0;
+    double result = mant*prec;
+    result = round(result);
+    result /= prec;
+    result = ldexp(result, ex);
+    return result;
+}
+
 /* used by nmodl and other c, c++ code */
 extern "C" double hoc_Exp(double x) {
     if (x < -700.) {
@@ -54,22 +66,13 @@ extern "C" double hoc_Exp(double x) {
         }
         return exp(700.);
     }
-    return exp(x);
+    return accuracy32(exp(x));
 }
 
 // Try to overcome difference between linux and windows.
 // by rounding mantissa to 32 bit accuracy.
 extern "C" double hoc_pow(double x, double y) {
-    double val = pow(x,y);
-    int ex;
-    double mant = frexp(val, &ex);
-    // round to about 32 bits after .
-    double prec = 4294967296.0;
-    double result = mant*prec;
-    result = round(result);
-    result /= prec;
-    result = ldexp(result, ex);
-    return result;
+    return accuracy32(pow(x,y));
 }
 
 /* used by interpreter */
