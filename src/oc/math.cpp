@@ -57,6 +57,22 @@ extern "C" double hoc_Exp(double x) {
     return exp(x);
 }
 
+// Try to overcome difference between linux and windows.
+// by rounding mantissa to 32 bit accuracy.
+extern "C" double hoc_pow(double x, double y) {
+    double val = pow(x,y);
+    int ex;
+    double mant = frexp(val, &ex);
+    // round to about 32 bits after .
+    double prec = 4294967296.0;
+    double result = mant*prec;
+    result = round(result);
+    result /= prec;
+    result = ldexp(result, ex);
+    printf("hoc_pow %.17g %.17g\n", val, result);
+    return result;
+}
+
 /* used by interpreter */
 double hoc1_Exp(double x) {
     if (x < -700.) {

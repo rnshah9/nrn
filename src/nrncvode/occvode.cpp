@@ -655,7 +655,7 @@ void Cvode::fun_thread(double tt, double* y, double* ydot, NrnThread* nt){
 	nrn_nonvint_block_ode_fun(z.nvsize_, y, ydot, nt->id);
 	fun_thread_transfer_part2(ydot, nt);
 
-if (!zz && ydot && tt > 0.0) {
+if (0 && !zz && ydot && tt > 0.0) {
   FILE* foo;
   foo = fopen("foo", "w");
   zz = 1;

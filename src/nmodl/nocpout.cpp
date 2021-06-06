@@ -274,6 +274,8 @@ fprintf(stderr, "Notice: ARTIFICIAL_CELL models that would require thread specif
 \n#if !NRNGPU\
 \n#undef exp\
 \n#define exp hoc_Exp\nextern double hoc_Exp(double);\
+\n#undef pow\
+\n#define pow hoc_pow\nextern double hoc_pow(double, double);\
 \n#endif\n\
 ");
 	if (protect_include_) {
