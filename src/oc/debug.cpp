@@ -188,7 +188,7 @@ void nrn_digest() {
   hoc_pushx(double(size));
 }
 
-void nrn_digest_dbl_array(const char* msg, int tid, double t, double* array, size_t sz) {
+void nrn_digest_dbl_array(const char* msg, int tid, int ix, double t, double* array, size_t sz) {
   unsigned char md[SHA_DIGEST_LENGTH];
   size_t n = sz*sizeof(double);
   unsigned char* d = (unsigned char*)array;
@@ -196,7 +196,7 @@ void nrn_digest_dbl_array(const char* msg, int tid, double t, double* array, siz
 
   std::string s(msg);
   char buf[100];
-  sprintf(buf, " %d %.17g ", tid, t);
+  sprintf(buf, " %d %d %.17g ", tid, ix, t);
   s += buf;
 
   for (int i=0; i < 8; ++i) {

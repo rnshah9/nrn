@@ -540,7 +540,7 @@ int Cvode::solvex_thread(double* b, double* y, NrnThread* nt){
 	CvodeThreadData& z = CTD(nt->id);
 #if NRN_DIGEST
 	if (nrn_digest_) {
-	  nrn_digest_dbl_array("solvex enter b", nt->id, t_, b, z.nvsize_);
+	  nrn_digest_dbl_array("solvex enter b", nt->id, 0, t_, b, z.nvsize_);
 	}
 #endif
 	nt->cj = 1./gam();
@@ -576,7 +576,7 @@ int Cvode::solvex_thread(double* b, double* y, NrnThread* nt){
 	nrn_nonvint_block_ode_solve(z.nvsize_, b, y, nt->id);
 #if NRN_DIGEST
 	if (nrn_digest_) {
-	  nrn_digest_dbl_array("solvex leave b", nt->id, t_, b, z.nvsize_);
+	  nrn_digest_dbl_array("solvex leave b", nt->id, 0, t_, b, z.nvsize_);
 	}
 #endif
 	return 0;
@@ -648,23 +648,23 @@ void Cvode::fun_thread(double tt, double* y, double* ydot, NrnThread* nt){
 	CvodeThreadData& z = CTD(nt->id);
 #if NRN_DIGEST
 	if (nrn_digest_) {
-	  nrn_digest_dbl_array("y", nt->id, tt, y, z.nvsize_);
+	  nrn_digest_dbl_array("y", nt->id, zz, tt, y, z.nvsize_);
 	}
 #endif
 	fun_thread_transfer_part1(tt, y, nt);
 	nrn_nonvint_block_ode_fun(z.nvsize_, y, ydot, nt->id);
 	fun_thread_transfer_part2(ydot, nt);
 
-if (1 && !zz && ydot && tt > 0.0) {
+if (1 && zz == 1 && ydot && tt > 0.0) {
 extern void nrn_prcellstate(int, const char*);
-  zz = 1;
   nrn_prcellstate(1, "foo");
 }
 
 #if NRN_DIGEST
 	if (nrn_digest_ && ydot) {
-	  nrn_digest_dbl_array("ydot", nt->id, tt, ydot, z.nvsize_);
+	  nrn_digest_dbl_array("ydot", nt->id, zz, tt, ydot, z.nvsize_);
 	}
+	zz += 1;
 #endif
 }
 
