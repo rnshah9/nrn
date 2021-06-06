@@ -655,14 +655,10 @@ void Cvode::fun_thread(double tt, double* y, double* ydot, NrnThread* nt){
 	nrn_nonvint_block_ode_fun(z.nvsize_, y, ydot, nt->id);
 	fun_thread_transfer_part2(ydot, nt);
 
-if (0 && !zz && ydot && tt > 0.0) {
-  FILE* foo;
-  foo = fopen("foo", "w");
+if (1 && !zz && ydot && tt > 0.0) {
+extern void nrn_prcellstate(int, const char*);
   zz = 1;
-  for (int i=0; i < z.nvsize_; ++i) {
-    fprintf(foo, "%d %.20g %.20g\n", i, y[i], ydot[i]);
-  }
-  fclose(foo);
+  nrn_prcellstate(1, "foo");
 }
 
 #if NRN_DIGEST
