@@ -642,6 +642,8 @@ hoc_warning("errno set during ode jacobian solve", (char*)0);
 	long_difus_solve(2, nt);
 }
 
+static int zz;
+
 void Cvode::fun_thread(double tt, double* y, double* ydot, NrnThread* nt){
 	CvodeThreadData& z = CTD(nt->id);
 #if NRN_DIGEST
@@ -652,6 +654,17 @@ void Cvode::fun_thread(double tt, double* y, double* ydot, NrnThread* nt){
 	fun_thread_transfer_part1(tt, y, nt);
 	nrn_nonvint_block_ode_fun(z.nvsize_, y, ydot, nt->id);
 	fun_thread_transfer_part2(ydot, nt);
+
+if (!zz && ydot && tt > 0.0) {
+  FILE* foo;
+  foo = fopen("foo", "w");
+  zz = 1;
+  for (int i=0; i < z.nvsize_; ++i) {
+    fprintf(foo, "%d %.20g %.20g\n", i, y[i], ydot[i]);
+  }
+  fclose(foo);
+}
+
 #if NRN_DIGEST
 	if (nrn_digest_ && ydot) {
 	  nrn_digest_dbl_array("ydot", nt->id, tt, ydot, z.nvsize_);
