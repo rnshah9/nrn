@@ -69,7 +69,6 @@ extern "C" double hoc_pow(double x, double y) {
     result = round(result);
     result /= prec;
     result = ldexp(result, ex);
-    printf("hoc_pow %.17g %.17g\n", val, result);
     return result;
 }
 
