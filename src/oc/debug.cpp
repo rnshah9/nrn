@@ -196,7 +196,7 @@ void nrn_digest_dbl_array(const char* msg, int tid, double t, double* array, siz
 
   std::string s(msg);
   char buf[100];
-  sprintf(buf, " %d %g %a ", tid, t, t);
+  sprintf(buf, " %d %.17g ", tid, t);
   s += buf;
 
   for (int i=0; i < 8; ++i) {
