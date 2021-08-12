@@ -19,9 +19,6 @@
 #define NRNPYTHON_DYNAMICLOAD PY_MAJOR_VERSION
 #endif
 
-// TODO: didn't enable dynamic load and end up with error if below is not a string
-#define HOCMOD "hoc"
-
 extern PyTypeObject* psection_type;
 
 // copied from nrnpy_nrn
@@ -363,7 +360,15 @@ static int hocobj_pushargs(PyObject* args, std::vector<char*>& s2free) {
       *ts = str.c_str();
       s2free.push_back(*ts);
       hoc_pushstr(ts);
-    } else if (PyObject_IsInstance(po, (PyObject*)hocobject_type)) {
+    } else if (PyObject_TypeCheck(po, hocobject_type)) {
+      // The PyObject_TypeCheck above used to be PyObject_IsInstance. The
+      // problem with the latter is that it calls the __class__ method of
+      // the object which can raise an error for nrn.Section, nrn.Segment,
+      // etc. if the internal Section is invalid (Section.prop == NULL).
+      // That, in consequence, will generate an
+      // Exception ignored on calling ctypes callback function: <function nrnpy_pr
+      // thus obscuring the actual error, such as
+      // nrn.Segment associated with deleted internal Section.
       PyHocObject* pho = (PyHocObject*)po;
       PyHoc::ObjectType tp = pho->type_;
       if (tp == PyHoc::HocObject) {
@@ -724,8 +729,15 @@ static PyObject* hocobj_call(PyHocObject* self, PyObject* args,
       return NULL;
     }
     if (section) {
-      section = nrnpy_pushsec(section);
-      if (!section) {
+      if (PyObject_TypeCheck(section, psection_type)) {
+        Section* sec = ((NPySecObj*)section)->sec_;
+        if (!sec->prop) {
+          nrnpy_sec_referr();
+          curargs_ = prevargs_;
+          return NULL;
+        }
+        nrn_pushsec(sec);
+      } else {
         PyErr_SetString(PyExc_TypeError, "sec is not a Section");
         curargs_ = prevargs_;
         return NULL;
@@ -3011,11 +3023,7 @@ PyObject* nrnpy_hoc() {
 
   int err = 0;
   PyObject* modules = PyImport_GetModuleDict();
-#if defined(__MINGW32__)
-  if ((m = PyDict_GetItemString(modules, HOCMOD)) != NULL && PyModule_Check(m)) {
-#else
   if ((m = PyDict_GetItemString(modules, "hoc")) != NULL && PyModule_Check(m)) {
-#endif // __MINGW32__
     return m;
   }
   m = PyModule_Create(&hocmodule);

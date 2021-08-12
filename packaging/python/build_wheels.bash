@@ -9,7 +9,7 @@ set -xe
 #  - cmake (>=3.5)
 #  - flex
 #  - bison
-#  - python >= 3.5
+#  - python >= 3.6
 #  - cython
 #  - MPI
 #  - X11
@@ -49,7 +49,6 @@ pip_numpy_install() {
     # numpy is special as we want the minimum wheel version
     numpy_ver="numpy"
     case "$py_ver" in
-      35) numpy_ver="numpy==1.10.4" ;;
       36) numpy_ver="numpy==1.12.1" ;;
       37) numpy_ver="numpy==1.14.6" ;;
       38) numpy_ver="numpy==1.17.5" ;;
@@ -68,7 +67,7 @@ build_wheel_linux() {
 
     echo " - Installing build requirements"
     #auditwheel needs to be installed with python3
-    PATH=/opt/python/cp38-cp38/bin/:$PATH pip3 install auditwheel
+    pip install auditwheel
     pip install -r packaging/python/build_requirements.txt
     pip_numpy_install
 
@@ -77,7 +76,11 @@ build_wheel_linux() {
     if [ "$2" == "--bare" ]; then
         python setup.py bdist_wheel
     else
-        python setup.py build_ext --cmake-prefix="/nrnwheel/ncurses;/nrnwheel/readline" --cmake-defs="NRN_MPI_DYNAMIC=$3" bdist_wheel
+        CMAKE_DEFS="NRN_MPI_DYNAMIC=$3"
+        if [ "$USE_STATIC_READLINE" == "1" ]; then
+          CMAKE_DEFS="$CMAKE_DEFS,NRN_WHEEL_STATIC_READLINE=ON"
+        fi
+        python setup.py build_ext --cmake-prefix="/nrnwheel/ncurses;/nrnwheel/readline" --cmake-defs="$CMAKE_DEFS" bdist_wheel
     fi
 
     # For CI runs we skip wheelhouse repairs
@@ -86,9 +89,9 @@ build_wheel_linux() {
         mkdir wheelhouse && cp dist/*.whl wheelhouse/
     else
         echo " - Auditwheel show"
-        PATH=/opt/python/cp38-cp38/bin/:$PATH auditwheel show dist/*.whl
+        auditwheel show dist/*.whl
         echo " - Repairing..."
-        PATH=/opt/python/cp38-cp38/bin/:$PATH auditwheel repair dist/*.whl
+        auditwheel repair dist/*.whl
     fi
 
     deactivate
@@ -110,7 +113,11 @@ build_wheel_osx() {
     if [ "$2" == "--bare" ]; then
         python setup.py bdist_wheel
     else
-        python setup.py build_ext --cmake-defs="NRN_MPI_DYNAMIC=$3" bdist_wheel
+        CMAKE_DEFS="NRN_MPI_DYNAMIC=$3"
+        if [ "$USE_STATIC_READLINE" == "1" ]; then
+          CMAKE_DEFS="$CMAKE_DEFS,NRN_WHEEL_STATIC_READLINE=ON"
+        fi
+        python setup.py build_ext --cmake-prefix="/opt/nrnwheel/ncurses;/opt/nrnwheel/readline" --cmake-defs="$CMAKE_DEFS" bdist_wheel
     fi
 
     echo " - Calling delocate-listdeps"
@@ -141,6 +148,7 @@ case "$1" in
   linux)
     # include here /nrnwheel/mpt/include if have MPT headers
     MPI_INCLUDE_HEADERS="/nrnwheel/openmpi/include;/nrnwheel/mpich/include"
+    USE_STATIC_READLINE=1
     python_wheel_version=${python_wheel_version//[-._]/}
     for py_bin in /opt/python/cp${python_wheel_version}*/bin/python; do
         build_wheel_linux "$py_bin" "$bare" "$MPI_INCLUDE_HEADERS"
@@ -149,7 +157,8 @@ case "$1" in
 
   osx)
     MPI_INCLUDE_HEADERS="/usr/local/opt/openmpi/include;/usr/local/opt/mpich/include"
-    for py_bin in /Library/Frameworks/Python.framework/Versions/${python_wheel_version}*/bin/python[23]; do
+    USE_STATIC_READLINE=1
+    for py_bin in /Library/Frameworks/Python.framework/Versions/${python_wheel_version}*/bin/python3; do
         build_wheel_osx "$py_bin" "$bare" "$MPI_INCLUDE_HEADERS"
     done
     ;;
