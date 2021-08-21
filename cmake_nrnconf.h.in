@@ -16,6 +16,10 @@
 /* Define to one if want to debug using sha1 hashes of data */
 #undef NRN_DIGEST
 
+/* Define to one if want to allow selection of architecture independent */
+/* 53 bit double precision of exp and pow from mpfr */
+#undef NRN_ARCH_INDEP_EXP_POW
+
 /* define if using cygwin */
 #undef CYGWIN
 

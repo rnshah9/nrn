@@ -278,9 +278,31 @@ add_library(nrniv_lib ${NRN_LIBRARY_TYPE} ${NRN_NRNIV_LIB_SRC_FILES})
 if (${USE_PTHREAD} EQUAL 1)
   target_link_libraries(nrniv_lib Threads::Threads)
 endif()
+
 if (${NRN_DIGEST} EQUAL 1)
-  target_link_libraries(nrniv_lib crypto)
+  if (NRN_MACOS_BUILD)
+    # where to get openssl/sha.h after brew install openssl
+    set_property(
+      SOURCE ${NRN_OC_SRC_DIR}/debug.cpp
+      APPEND
+      PROPERTY INCLUDE_DIRECTORIES
+        /opt/homebrew/Cellar/openssl@1.1/1.1.1k/include
+    )
+    find_library(LIB_CRYPTO crypto
+      PATHS /opt/homebrew/Cellar/openssl@1.1/1.1.1k/lib
+      REQUIRED
+    )
+    target_link_libraries(nrniv_lib ${LIB_CRYPTO})
+  else()
+    target_link_libraries(nrniv_lib crypto)
+  endif()
 endif()
+
+if (${NRN_ARCH_INDEP_EXP_POW} EQUAL 1)
+  find_library(LIB_MPFR mpfr REQUIRED)
+  target_link_libraries(nrniv_lib ${LIB_MPFR})
+endif()
+
 if(NRN_WINDOWS_BUILD)
   target_link_libraries(nrniv_lib ${TERMCAP_LIBRARIES} ${Readline_LIBRARY})
 else()

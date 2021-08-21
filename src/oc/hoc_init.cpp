@@ -238,6 +238,7 @@ static struct { /* Builtin functions with multiple or variable args */
 #if NRN_DIGEST
     "nrn_digest", nrn_digest,
 #endif
+    "use_exp_pow_precision", hoc_use_exp_pow_precision,
 	0,	0
 };
 

@@ -46,6 +46,7 @@ extern void hoc_win_exec();
 #if NRN_DIGEST
 extern void nrn_digest();
 #endif
+extern void hoc_use_exp_pow_precision();
 
 #endif  
 
