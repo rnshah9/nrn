@@ -550,6 +550,7 @@ static void ion_cur(NrnThread *nt, Memb_list *ml, int type) {
 #pragma _CRI ivdep
 #endif
     for (i = 0; i < count; ++i) {
+        // printf("_iml: %d iontype: %d (iontype & 0100) : %d\n", i, iontype, iontype & 0100);
         dcurdv = 0.;
         cur = 0.;
         if (iontype & 0100) {
@@ -572,6 +573,7 @@ static void ion_init(NrnThread *nt, Memb_list *ml, int type) {
 #pragma _CRI ivdep
 #endif
     for (i = 0; i < count; ++i) {
+        // printf("_iml: %d iontype: %d (iontype & 04) : %d\n", i, iontype, iontype & 04);
         if (iontype & 04) {
             conci = conci0;
             conco = conco0;
@@ -581,6 +583,7 @@ static void ion_init(NrnThread *nt, Memb_list *ml, int type) {
 #pragma _CRI ivdep
 #endif
     for (i = 0; i < count; ++i) {
+        // printf("_iml: %d iontype: %d (iontype & 040) : %d\n", i, iontype, iontype & 040);
         if (iontype & 040) {
             erev = nrn_nernst(conci, conco, charge);
         }
