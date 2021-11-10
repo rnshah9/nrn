@@ -1,5 +1,6 @@
 # Test of data return covering most of the functionality.
 import distutils.util
+import itertools
 import os
 import sys
 import traceback
@@ -176,51 +177,37 @@ def test_datareturn():
         distutils.util.strtobool(os.environ.get("CORENRN_ENABLE_GPU", "false"))
     )
 
-    coreneuron.cell_permute = 0
-    for mode in [0, 1, 2]:
+    results = []
+    cell_permute_values = (1, 2) if coreneuron.gpu else (0, 1)
+    for mode, nthread, cell_permute in itertools.product(
+        [0, 1, 2], [1, 2], cell_permute_values
+    ):
+        pc.nthread(nthread)
+        coreneuron.cell_permute = cell_permute
         run(tstop, mode)
         tst = model.data()
-        max_unpermuted = h.Vector(std).sub(h.Vector(tst)).abs().max()
-        print("mode ", mode)
-        print("max diff unpermuted = %g" % max_unpermuted)
-
-        coreneuron.cell_permute = 1
-        run(tstop, mode)
-        tst = model.data()
-        max_permuted = h.Vector(std).sub(h.Vector(tst)).abs().max()
-        print("max diff permuted = %g" % max_permuted)
-
-        pc.nthread(2)
-        run(tstop, mode)
-
-        tst = model.data()
-        max_permuted_thread = h.Vector(std).sub(h.Vector(tst)).abs().max()
-
-        coreneuron.enable = False
-
+        max_diff = h.Vector(std).sub(h.Vector(tst)).abs().max()
+        assert len(std) == len(std)
         print(
-            "max diff permuted with %d threads = %g"
-            % (pc.nthread(), max_permuted_thread)
+            "mode={} nthread={} permute={} max diff={}".format(
+                mode, nthread, cell_permute, max_diff
+            )
         )
-
-        assert max_unpermuted < 1e-10
-        assert max_permuted < 1e-10
-        assert max_permuted_thread < 1e-10
-        pc.nthread(1)
+        # print([x for x in h.Vector(std).sub(h.Vector(tst))])
+        results.append(max_diff)
+    assert all(max_diff < 1e-10 for max_diff in results)
 
     if __name__ != "__main__":
         # tear down
+        coreneuron.enable = False
         pc.nthread(1)
         pc.gid_clear()
-        return None
-
-    return model
 
 
 if __name__ == "__main__":
     show = False
     try:
-        model = test_datareturn()
+        test_datareturn()
     except:
         traceback.print_exc()
         # Make the CTest test fail
