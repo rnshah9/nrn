@@ -94,17 +94,18 @@ class Network:
                     pass
         for inst in instances:
             for name in names:
-                d.append(getattr(inst, name))
+                d.append(((mname, name), getattr(inst, name)))
 
     def data(self):
-        d = [h.t]
-        for sec in h.allsec():
-            for seg in sec:
-                d.append(seg.v)
-                d.append(seg.i_membrane_)
-                for mech in seg:
-                    for var in mech:
-                        d.append(var[0])
+        d = [('t', h.t)]
+        for ncell, cell in enumerate(self.cells):
+            for nsec, sec in enumerate(cell.secs):
+                for nseg, seg in enumerate(sec):
+                    d.append(((ncell, nsec, nseg, 'v'), seg.v))
+                    d.append(((ncell, nsec, nseg, 'i'), seg.i_membrane_))
+                    for mech in seg:
+                        for var in mech:
+                            d.append(((ncell, nsec, nseg, mech.name(), var.name()), var[0]))
 
         # all NetStim, ExpSyn, ...
         for mname in ["NetStim", "Exp2Syn", "IntervalFire"]:
@@ -186,8 +187,8 @@ def test_datareturn():
         coreneuron.cell_permute = cell_permute
         run(tstop, mode)
         tst = model.data()
-        max_diff = h.Vector(std).sub(h.Vector(tst)).abs().max()
-        assert len(std) == len(std)
+        max_diff = h.Vector(v for k, v in std).sub(h.Vector(v for k, v in tst)).abs().max()
+        assert len(std) == len(tst)
         print(
             "mode={} nthread={} permute={} max diff={}".format(
                 mode, nthread, cell_permute, max_diff
@@ -195,6 +196,14 @@ def test_datareturn():
         )
         # print([x for x in h.Vector(std).sub(h.Vector(tst))])
         results.append(max_diff)
+        if max_diff > 1e-10:
+            for i in range(len(std)):
+                nrn_key, nrn_val = std[i]
+                tst_key, tst_val = tst[i]
+                assert nrn_key == tst_key
+                if abs(nrn_val - tst_val) < 1e-10: continue
+                print(i, nrn_key, nrn_val, tst_val, abs(nrn_val-tst_val))
+            sfs()
     assert all(max_diff < 1e-10 for max_diff in results)
 
     if __name__ != "__main__":
