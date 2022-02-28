@@ -20,9 +20,10 @@ extern int* bbcore_dparam_size;
 extern bbcore_write_t* nrn_bbcore_write_;
 extern NetCvode* net_cvode_instance;
 extern void (*nrnthread_v_transfer_)(NrnThread*);
+extern bool _nrn_initialized_;
 
 int chkpnt;
-const char *bbcore_write_version = "1.4"; // Generalize *_gap.dat to allow transfer of any range variable
+const char *bbcore_write_version = "1.6"; // Generalize *_gap.dat to allow transfer of any range variable
 
 /// create directory with given path
 void create_dir_path(const std::string& path) {
@@ -106,6 +107,7 @@ void write_globals(const char* fname) {
     fprintf(f, "secondorder %d\n", secondorder);
     fprintf(f, "Random123_globalindex %d\n", nrnran123_get_globalindex());
     fprintf(f, "_nrnunit_use_legacy_ %d\n", _nrnunit_use_legacy_);
+    fprintf(f, "_nrn_initialized_ %d\n", _nrn_initialized_);
 
     fclose(f);
 }

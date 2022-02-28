@@ -73,6 +73,8 @@ extern int diam_changed;
 extern int state_discon_allowed_;
 extern double hoc_epsilon;
 
+extern bool _nrn_initialized_;
+
 static void update(NrnThread*);
 
 #if 0
@@ -986,6 +988,7 @@ void nrn_finitialize(int setv, double v) {
     if (nrn_allthread_handle) { (*nrn_allthread_handle)(); }
 
     nrn_fihexec(2); /* just before return */
+    _nrn_initialized_ = true;
     nrn::Instrumentor::phase_end("finitialize");
 }
 

@@ -118,6 +118,7 @@ static char	CHKmes[] = "The user defined name, %s, already exists\n";
 void (*nrnpy_reg_mech_p_)(int);
 
 int secondorder=0;
+bool _nrn_initialized_ = false;
 int state_discon_allowed_;
 extern int nrn_nobanner_;
 double t, dt, clamp_resist, celsius, htablemin, htablemax;
