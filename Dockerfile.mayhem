@@ -1,0 +1,9 @@
+FROM --platform=linux/amd64 ubuntu:22.04
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential bison cmake flex git libncurses-dev libopenmpi-dev libx11-dev libxcomposite-dev openmpi-bin python3-dev libreadline-dev cython3
+
+COPY . /repo
+WORKDIR /repo/build
+RUN cmake ..
+RUN make -j8

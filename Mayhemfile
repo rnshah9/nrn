@@ -1,0 +1,5 @@
+project: nrn
+target: nrniv
+
+cmds:
+  - cmd: /repo/build/bin/nrniv
