@@ -13,6 +13,8 @@ RUN ldd /repo/build/bin/nrniv | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % 
 
 FROM ubuntu:22.04 as package
 
+RUN apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python3-dev
 COPY --from=builder /deps /deps
 COPY --from=builder /repo/build/bin/nrniv /repo/build/bin/nrniv
 ENV LD_LIBRARY_PATH=/deps
