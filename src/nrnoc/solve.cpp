@@ -51,16 +51,18 @@ node.v + extnode.v[0]
 
 #endif
 
+#include "membdef.h"
+#include "membfunc.h"
+#include "nrniv_mf.h"
+#include "nrnmpiuse.h"
+#include "ocnotify.h"
+#include "section.h"
+#include "spmatrix.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <nrnmpiuse.h>
-#include "section.h"
-#include "membdef.h"
-#include "membfunc.h"
-#include "spmatrix.h"
 
-extern int tree_changed;
 static void node_free();
 static void triang(NrnThread*), bksub(NrnThread*);
 
@@ -226,7 +228,7 @@ double topol_distance(Section* sec1,
 static Section* origin_sec;
 
 void distance(void) {
-    double d, d_origin;
+    double d, d_origin{};
     int mode;
     Node* node;
     Section* sec;

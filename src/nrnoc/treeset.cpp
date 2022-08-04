@@ -1,6 +1,21 @@
 #include <../../nrnconf.h>
 /* /local/src/master/nrn/src/nrnoc/treeset.cpp,v 1.39 1999/07/08 14:25:07 hines Exp */
 
+#include "cvodeobj.h"
+#include "isoc99.h"
+#include "membfunc.h"
+#include "multisplit.h"
+#include "neuron.h"
+#include "nonvintblock.h"
+#include "nrndae_c.h"
+#include "nrniv_mf.h"
+#include "nrnmpi.h"
+#include "ocnotify.h"
+#include "section.h"
+#include "spmatrix.h"
+#include "treeset.h"
+#include "utils/profile/profiler_interface.h"
+
 #include <stdio.h>
 #if HAVE_STDLIB_H
 #include <stdlib.h>
@@ -8,28 +23,12 @@
 #include <errno.h>
 #include <math.h>
 #include <string>
-#include "section.h"
-#include "membfunc.h"
-#include "neuron.h"
-#include "parse.hpp"
-#include "nrnmpi.h"
-#include "multisplit.h"
-#include "spmatrix.h"
-#include "nonvintblock.h"
-#include "nrndae_c.h"
-#include "utils/profile/profiler_interface.h"
 
 extern spREAL* spGetElement(char*, int, int);
-
-#if CVODE
-extern int cvode_active_;
-#endif
 
 int nrn_shape_changed_; /* for notifying Shape class in nrniv */
 double* nrn_mech_wtime_;
 
-extern int diam_changed;
-extern int tree_changed;
 extern double chkarg(int, double low, double high);
 extern double nrn_ra(Section*);
 #if !defined(NRNMPI) || NRNMPI == 0
@@ -76,11 +75,9 @@ int nrn_use_daspk_ = 0;
 When properties are allocated to nodes or freed, v_structure_change is
 set to 1. This means that the mechanism vectors need to be re-determined.
 */
-extern "C" {
 int v_structure_change;
 int structure_change_cnt;
 int diam_change_cnt;
-}  // extern "C"
 int nrn_node_ptr_change_cnt_;
 
 #endif
@@ -643,7 +640,7 @@ Section* nrn_pnt_sec_for_need_;
 extern Prop* prop_alloc(Prop**, int, Node*);
 
 
-extern "C" Prop* need_memb(Symbol* sym) {
+Prop* need_memb(Symbol* sym) {
     int type;
     Prop *mprev, *m;
     if (disallow_needmemb) {
@@ -1842,7 +1839,7 @@ void node_data_values(void) {
         Pg(NODEAREA(v_node[i]));
     }
     for (i = 2; i < n_memb_func; ++i) {
-        Prop *prop, *nrn_mechanism();
+        Prop* prop;
         int cnt;
         double* pd;
         if (memb_list[i].nodecount) {
@@ -1889,7 +1886,7 @@ void node_data(void) {
 
 #endif
 
-extern "C" void nrn_complain(double* pp) {
+void nrn_complain(double* pp) {
     /* print location for this param on the standard error */
     Node* nd;
     hoc_Item* qsec;
@@ -2177,7 +2174,7 @@ void nrn_old_thread_save(void) {
 
 static double* (*recalc_ptr_)(double*);
 
-extern "C" double* nrn_recalc_ptr(double* old) {
+double* nrn_recalc_ptr(double* old) {
     if (recalc_ptr_) {
         return (*recalc_ptr_)(old);
     }
@@ -2193,7 +2190,7 @@ extern "C" double* nrn_recalc_ptr(double* old) {
     return old;
 }
 
-extern "C" void nrn_register_recalc_ptr_callback(Pfrv f) {
+void nrn_register_recalc_ptr_callback(Pfrv f) {
     if (n_recalc_ptr_callback >= 20) {
         Printf("More than 20 recalc_ptr_callback functions\n");
         exit(1);
@@ -2305,6 +2302,7 @@ void nrn_recalc_node_ptrs(void) {
     nrn_cache_prop_realloc();
     nrn_recalc_ptrvector();
     nrn_partrans_update_ptrs();
+    nrn_imem_defer_free(nullptr);
 }
 
 #endif /* CACHEVEC */
