@@ -1,0 +1,6 @@
+project: nrn
+target: vtrap
+
+cmds:
+  - cmd: /fuzz_vtrap
+image: ghcr.io/rnshah9/playground:nrn

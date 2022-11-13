@@ -3,3 +3,4 @@ target: nrniv
 
 cmds:
   - cmd: /install/bin/nrniv
+image: ghcr.io/rnshah9/playground:nrn
